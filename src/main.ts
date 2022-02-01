@@ -11,6 +11,17 @@ import { ENVIRONMENT, HOST, PORT } from './dependencies/config'
 
 import { CustomContext } from './types/interfaces/CustomContext'
 
+import { CandidateResolver } from './lib/resolvers/CandidateResolver'
+import { InterviewResolver } from './lib/resolvers/InterviewResolver'
+import { InternResolver } from './lib/resolvers/InternResolver'
+import { ReviewResolver } from './lib/resolvers/ReviewResolver'
+
+// import { AutoRegister } from './middlewares/AutoRegister'
+import { AutoRegister } from '../src/middlewares/RegisterMiddleware'
+import { ErrorInterceptor } from './middlewares/ErrorInterceptor'
+
+import { jwt } from './middlewares/Authentication'
+import { UserResolver } from './lib/resolvers/UserResolver'
 
 async function main (): Promise<void> {
   console.log(`ENVIRONMENT: ${ENVIRONMENT}`)
@@ -20,9 +31,14 @@ async function main (): Promise<void> {
   console.log('=== BUILDING GQL SCHEMA ===')
   const schema = await buildSchema({
     resolvers: [
+      CandidateResolver,
+      InterviewResolver,
+      InternResolver,
+      ReviewResolver,
+      UserResolver
     ],
     globalMiddlewares: [
-      
+      ErrorInterceptor
     ]
   })
 
@@ -44,6 +60,7 @@ async function main (): Promise<void> {
 
   await apolloServer.start()
   app.use(cors())
+    .use(jwt)
     .use(AutoRegister(connection.em.fork()))
 
   app.use(apolloServer.getMiddleware({ cors: false }))

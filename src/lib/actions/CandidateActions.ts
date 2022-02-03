@@ -2,7 +2,34 @@ import { EntityManager } from '@mikro-orm/core'
 
 import { Candidate } from 'src/types/entities/Candidate'
 import { CandidateInputData } from 'src/types/classes/CandidateInputData'
+import { PaginationInputData } from 'src/types/classes/PaginationInputData'
+import { PaginatedCandidates } from 'src/types/entities/PaginatedCandidates'
 
+export async function getCandidatesAction (data: PaginationInputData, em: EntityManager): Promise<PaginatedCandidates> {
+  const offset = (data.page - 1) * data.limit
+  if (data.filter === undefined) data.filter = ''
+  // console.log('mpika')
+  const [candidates, count] = await em.findAndCount(
+    Candidate, {
+      $or: [
+        { name: { $like: `%${String(data.filter)}%` } },
+        { email: { $like: `%${String(data.filter)}%` } },
+        { mobile: { $like: `%${String(data.filter)}%` } },
+        { position: { $like: `%${String(data.filter)}%` } },
+        { employmentType: { $like: `%${String(data.filter)}%` } },
+        { degree: { $like: `%${String(data.filter)}%` } }
+      ]
+    },
+    {
+      populate: ['interviews'],
+      limit: data.limit,
+      offset
+    })
+  // console.log('candidates', candidates)
+  // console.log('count is ', count)
+  await em.flush()
+  return { context: candidates, total: count }
+}
 
 export async function getCandidateByIdAction (id: string, em: EntityManager): Promise<Candidate> {
   const candidate = await em.findOneOrFail(Candidate, { id }, ['interviews'])

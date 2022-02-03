@@ -10,6 +10,14 @@ import { createCandidateAction, deleteCandidateAction, getCandidateByIdAction, g
 
 @Resolver()
 export class CandidateResolver {
+  @Query(() => PaginatedCandidates)
+  async getCandidates (
+    @Ctx('em') em: EntityManager,
+      @Arg('data', () => PaginationInputData) data: PaginationInputData
+  ): Promise<PaginatedCandidates> {
+    return await getCandidatesAction(data, em)
+  }
+
   @Query(() => Candidate)
   async getCandidateById (
     @Ctx('em') em: EntityManager,
@@ -17,6 +25,15 @@ export class CandidateResolver {
   ): Promise <Candidate> {
     return await getCandidateByIdAction(id, em)
   }
+
+  // @Query(() => PaginatedCandidates)
+  // async getCandidatesByStatus (
+  //   @Ctx('em') em: EntityManager,
+  //     @Arg('data', () => PaginationInputData) data: PaginationInputData,
+  //     @Arg('status', () => String) status: string
+  // ): Promise <PaginatedCandidates> {
+  //   return await getCandidatesByStatusAction(status, data, em)
+  // }// left to do paginated
 
   @Query(() => [Candidate])
   async getCandidatesByStatus (

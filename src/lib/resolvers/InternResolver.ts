@@ -68,3 +68,18 @@ export class InternResolver {
     return await deleteInternAction(id, em)
   }
 
+  @Query(() => [Stats])
+  async findPercentageOfInterns (
+    @Ctx('em') em: EntityManager
+  ): Promise<Stats[]> {
+    return await findPercentageOfSuccessfulInterns(em)
+  }
+
+  @Query(() => [Stats])
+  async findPercentageOfInternsMonthly (
+    @Ctx('em') em: EntityManager,
+      @Arg('months', () => Number) months: number
+  ): Promise<Stats[]> {
+    return await findPercentageOfSuccessfulInternsPerPeriod(months, em)
+  }
+}

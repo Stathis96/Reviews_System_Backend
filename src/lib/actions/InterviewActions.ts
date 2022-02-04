@@ -92,3 +92,37 @@ export async function deleteInterviewAction (id: string, user: User, em: EntityM
   await em.removeAndFlush(interview)
   return true
 }
+
+export async function findPercentageOfSuccessfulInterviews (em: EntityManager): Promise<StatusStats[]> {
+  const interviews = await em.find(Interview, {})
+  const employed = interviews.filter(element => element.status === 'accepted')
+  const dismissed = interviews.filter(element => element.status === 'rejected')
+  const stats: StatusStats[] = [
+    { value: employed.length, name: Status.ACCEPTED },
+    { value: dismissed.length, name: Status.REJECTED }
+  ]
+  return stats
+  // return (employed.length / total) * 100
+}
+
+export async function findPercentageOfSuccessfulInterviewsPerPeriod (months: number, em: EntityManager): Promise<StatusStats[]> {
+  const interviews = await em.find(Interview, {})
+  const employed = interviews.filter(element => element.status === 'accepted')
+  const dismissed = interviews.filter(element => element.status === 'rejected')
+
+  const monthEmployed = employed.filter(element => {
+    const diff = (new Date().getTime() - element.endTime.getTime()) / 1000 / 60 / 60 / 24 / 30
+    return diff < months && diff > 0
+  })
+  const monthDismissed = dismissed.filter(element => {
+    const diff = (new Date().getTime() - element.endTime.getTime()) / 1000 / 60 / 60 / 24 / 30
+    return diff < months && diff > 0
+  })
+
+  const stats: StatusStats[] = [
+    { value: monthEmployed.length, name: Status.ACCEPTED },
+    { value: monthDismissed.length, name: Status.REJECTED }
+  ]
+  return stats
+  // return (employed.length / total) * 100
+}

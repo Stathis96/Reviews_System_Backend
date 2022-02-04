@@ -63,3 +63,38 @@ export async function deleteInternAction (id: string, em: EntityManager): Promis
   return true
 }
 
+export async function findPercentageOfSuccessfulInterns (em: EntityManager): Promise<Stats[]> {
+  const interns = await em.find(Intern, {})
+  const employed = interns.filter(element => element.internStatus === 'employed')
+  const dismissed = interns.filter(element => element.internStatus === 'dismissed')
+  // const total = employed.length + dismissed.length
+  const stats: Stats[] = [
+    { value: employed.length, name: InternStatus.EMPLOYED },
+    { value: dismissed.length, name: InternStatus.DISMISSED }
+  ]
+  return stats
+  // return (employed.length / total) * 100
+}
+
+export async function findPercentageOfSuccessfulInternsPerPeriod (months: number, em: EntityManager): Promise<Stats[]> {
+  const interviews = await em.find(Intern, {})
+  const employed = interviews.filter(element => element.internStatus === 'employed')
+  const dismissed = interviews.filter(element => element.internStatus === 'dismissed')
+
+  const monthEmployed = employed.filter(element => {
+    const diff = (new Date().getTime() - element.hiredAt.getTime()) / 1000 / 60 / 60 / 24 / 30
+    return diff < months && diff > 0
+  })
+  const monthDismissed = dismissed.filter(element => {
+    const diff = (new Date().getTime() - element.hiredAt.getTime()) / 1000 / 60 / 60 / 24 / 30
+    return diff < months && diff > 0
+  })
+
+  const stats: Stats[] = [
+    { value: monthEmployed.length, name: InternStatus.EMPLOYED },
+    { value: monthDismissed.length, name: InternStatus.DISMISSED }
+  ]
+  // console.log('stats sent are', stats)
+  return stats
+  // return (employed.length / total) * 100
+}

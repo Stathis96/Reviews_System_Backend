@@ -80,4 +80,18 @@ export class InterviewResolver {
     return await deleteInterviewAction(id, ctx.user as User, em)
   }
 
+  @Query(() => [StatusStats])
+  async findPercentageOfInterviews (
+    @Ctx('em') em: EntityManager
+  ): Promise<StatusStats[]> {
+    return await findPercentageOfSuccessfulInterviews(em)
+  }
+
+  @Query(() => [StatusStats])
+  async findPercentageOfInterviewsMonthly (
+    @Ctx('em') em: EntityManager,
+      @Arg('months', () => Number) months: number
+  ): Promise<StatusStats[]> {
+    return await findPercentageOfSuccessfulInterviewsPerPeriod(months, em)
+  }
 }

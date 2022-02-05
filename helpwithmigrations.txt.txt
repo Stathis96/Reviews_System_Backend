@@ -1,0 +1,481 @@
+npx mikro-orm migration:create 
+npx mikro-orm migration:up
+
+
+studio.apollographql : 
+
+
+{
+  getCandidates(data:{page:1, limit:0}) {
+    context{
+    id
+    name
+    email
+    degree
+    employmentType
+    position
+    status
+    mobile
+    interviews {
+        id
+      }
+    }
+      total
+  }
+}
+query ($getCandidatesData: PaginationInputData!) {
+  getCandidates(data: $getCandidatesData) {
+        context{
+    id
+    name
+    email
+    degree
+    employmentType
+    position
+    status
+    mobile
+    interviews {
+        id
+      }
+    }
+      total
+  }
+}
+{
+  getOldInterviews {
+    id
+    endTime
+    status
+  }
+}
+{
+  getReviews {
+    id
+    total
+    createdAt
+    intern {
+      fullname
+      internStatus
+    }
+  }
+}
+
+
+{
+  findPercentageOfInterns{value,name}
+}
+{
+  findPercentageOfInterviewsMonthly(months:120){
+    value
+    name
+  }
+}
+{
+  getCandidatesByStatus(data:{page:3, limit:2},status:"standby"){
+    context {
+      name
+      id
+      status
+      email
+      degree
+      position
+      status
+    }
+    total
+  }
+}
+
+{
+  getReviewsOfActiveInterns {
+    total
+    intern {
+      fullname
+      email
+      internStatus
+    }
+  }
+}
+
+{
+  getReviewsByStatus(status:"dismissed"){
+    total
+    intern {
+      fullname
+      internStatus
+    }
+  }
+}
+
+{
+  getInterviewsByStatus(status:"STANDBY"){
+    status
+    experience
+    grading
+    startTime
+    
+    candidate {
+      name
+      email
+    }
+    interviewer {
+      name
+      id
+    }
+  }
+}
+{
+  getInterns(status:"active"){
+    fullname
+    email
+    academicYear
+    hiredAt
+    position
+    internStatus
+    supervisor {
+      id
+    }
+    reviews {
+      id
+      total
+    }
+      }
+}
+{
+  findPercentageOfInterns{
+    people
+    position
+    }
+}
+
+{
+  getInternsByStatus(status:"dismissed"){
+    id
+    fullname
+    email
+    academicYear
+    position
+    internStatus
+    supervisor {
+      id
+    }
+    reviews {
+      id
+      
+      total
+    }
+      }
+}
+
+{
+  getInternById(id:"16dd1228-7651-4b79-bc44-810540e890b9"){
+    id
+    fullname
+    email
+    position
+    internStatus
+    hiredAt
+    dateOfBirth
+    supervisor {
+      id
+      name
+    }
+    reviews {
+      id
+      consistency
+      cooperation
+      initiative
+      performance
+      total
+      createdAt
+        intern {
+          id
+          fullname
+        }
+        supervisor {
+          id
+          name
+        }
+    }
+  }
+}
+
+{
+  getCandidateById(id:"231c6719-d3d6-4e5a-a2e8-380b11f2d4a2"){
+    name
+    email
+    degree
+    employmentType
+    position
+    status
+  }
+}
+{
+  getInterviewById(id:"100"){
+    startTime
+    endTime
+    experience
+    grading
+    status
+    candidate {
+      degree
+      email
+      name
+    }
+  }
+}
+
+
+{
+  getScheduledInterviews {
+    candidate {
+      id
+      name
+      position
+      status
+      employmentType
+    }
+    interviewer {
+      id
+      name
+      email
+      position
+    }
+    id
+    startTime
+    endTime
+    status
+    comments
+    degree
+    experience
+    grading
+  }
+}
+
+{
+  getOldInterviews {
+    candidate {
+      id
+      name
+    }
+    startTime
+    grading
+  }
+}
+
+mutation {
+  createCandidate(data: { name:"TEstXristis", email:"sfdsfdsniss@mail.com",mobile:"009000",position:"stores",employmentType:"fulltime",degree:"kalodegree",status:"accepted" }) {
+   name
+   email
+   mobile
+   degree
+   employmentType
+   position
+   status
+   }
+}
+
+
+mutation {
+  createInterview(data: {
+    candidateId:"d3382835-7639-478a-93a4-892fcba10b8d"
+    startTime:"2019-12-12 13:45:00"
+    status:"standby"
+    endTime:"2019-12-12 14:00:00"
+    comments:"kalos o paiktis"
+    grading: 5
+    experience : 4
+    degree : 4
+    })
+    {
+      startTime
+      endTime
+      status
+      candidate {
+        id
+      }
+      interviewer {
+        name
+      }
+    }
+}
+
+mutation {
+  createIntern(data: {
+    fullname:"rejectedintern"
+    email:"slemininrejjjjkgk@gmail.com"
+    dateOfBirth:"1996-02-14 10:00:00"
+    hiredAt:"2021-05-05 10:00:00"
+    endInternship:"2022-10-10 10:00:00"
+    position:"dev"
+    school:"ateithe"
+    internStatus:"dismissed"
+    supervisorId:"111"
+    academicYear:"2014-05-05 10:00:00"
+  }){
+    fullname
+    email
+    position
+  }
+}
+
+mutation{
+  createReview(data:{
+    consistency: 5
+    cooperation : 5
+    initiative :5
+    performance :4
+    total: 5
+    createdAt :"2020-05-05 10:00:00"
+    internId :"100"
+    supervisorId:"111"
+  }){
+    total
+    supervisor {
+      id
+      name
+    }
+    intern {
+      id
+      fullname
+      internStatus
+      school
+    }
+  }
+}
+
+mutation {
+  updateReview(
+    id:"4756d352-d28b-4bba-b87c-23901231e5e7"
+    data:{
+      consistency:4
+      cooperation:4
+      initiative:4
+      performance:4
+      total:4
+      intern_id:"f8f6a79c-eba4-4c3e-89f1-24a116a24d38"
+      supervisor_id:"111"
+      createdAt:"2021-05-05 20:00:00"
+    }){
+      total
+      intern {
+        fullname
+      }
+      supervisor {
+        name
+        id
+      }
+    }
+  
+}
+
+mutation{
+  updateIntern(
+    id:"toidmou"
+    data:{
+    fullname:"allagmenosintern"
+    email:"allagiemailk@gmail.com"
+    dateOfBirth:"1996-02-14 10:00:00"
+    hiredAt:"2021-05-05 10:00:00"
+    endInternship:"2022-10-10 10:00:00"
+    position:"dev"
+    school:"ateithe"
+    supervisor_id:"111"
+    academicYear:"2014-05-05 10:00:00"
+    status:"standby"
+  }){
+    fullname
+    email
+    position
+    status
+  }
+}
+
+mutation{
+  updateInternStatus(
+    id:"2d6fcce2-5f63-4d52-93ba-ae0a2bae6c4b",
+    internStatus: STANDBY
+  ){
+    internStatus
+  }
+}
+
+mutation {
+  updateCandidate(
+    id:"231c6719-d3d6-4e5a-a2e8-380b11f2d4a2",
+    data: {
+      name: "updatedCandidate",
+      email:"updatedEmail",
+      mobile:"updatedMobile",
+      degree:"mideniko"
+      position:"network",
+      status:"rejected",
+      employmentType:"fulltime"
+    }){
+      name
+      email
+      mobile
+      degree
+      position
+      status
+      employmentType
+    }
+}
+mutation{
+  updateInterviewStatus(
+    id:"5e48e6bb-8c9b-40eb-b07d-82267bb4200d",
+    status: ACCEPTED
+  ){
+    status
+  }
+}
+
+
+mutation{
+  updateInterview(
+    id:"cb9eeb15-54ef-4087-9366-86437b21b9fa",
+    data:{
+      candidateId:"59eb2749-cc7b-40fc-a1f1-2cfc8475538c",
+      interviewerId:"111",
+      startTime:"2020-05-10 10:00:00"
+      endTime:"2020-05-10 10:20:00"
+      experience: 3
+      degree: 2
+      comments:"allaxe"
+      grading: 5
+      status:"standby"
+    }){
+      candidate {
+        id
+      }
+      interviewer {
+        id
+      }
+      startTime
+      endTime
+      experience
+      degree
+      grading
+      comments
+    status
+    }
+}
+
+mutation {
+  deleteCandidate(id: "ba2fb6e1-dca8-47a7-9cfe-4f37d1849f4b")
+}
+
+mutation {
+  deleteInterview(id:"100")
+}
+
+
+mutation {
+  deleteIntern(id:"2e3995ab-6d36-4514-b576-25739b7640ad")
+}
+
+mutation {
+  deleteReview(id:"fd781728-c9d4-4693-b051-0f42719c7298")
+}
+
+
+

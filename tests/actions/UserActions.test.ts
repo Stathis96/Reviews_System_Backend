@@ -31,3 +31,17 @@ async function createBasicUser (name = 'Senior'): Promise<User> {
   return user
 }
 
+describe('UserActions : getUsersAction', () => {
+  test('can fetch users', async () => {
+    expect.assertions(3)
+
+    const user1 = await createBasicUser()
+    const user2 = await createBasicUser()
+    const user3 = await createBasicUser()
+
+    const result = await getUsersAction(em)
+    expect(result[0]).toBe(user1)
+    expect(result).toStrictEqual([user1, user2, user3])
+    expect(result).toHaveLength(3)
+  })
+})

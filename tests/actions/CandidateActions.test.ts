@@ -166,3 +166,59 @@ describe('ListActions : createCandidateAction', () => {
   })
 })
 
+describe('CandidatesAction : updateCandidateAction', () => {
+  test('Can update candidate with valid data', async () => {
+    expect.assertions(3)
+
+    const result = await createBasicCandidate()
+    const id = result.id
+    const data = {
+      name: 'NewCandidate',
+      email: String(Math.floor(Math.random() * 1000 + 1)) + 'Newmail@sth.com',
+      mobile: '1234562345',
+      position: Position.STORES,
+      employmentType: EmploymentType.PARTTIME,
+      status: Status.PENDING,
+      degree: 'Fine'
+    }
+
+    await updateCandidateAction(id, data, em)
+    expect(result.name).toBe(data.name)
+    expect(result.mobile).toBe(data.mobile)
+    expect(result.status).toBe(data.status)
+  })
+  test('Cannot update a candidate with invalid-id', async () => {
+    expect.assertions(1)
+    const id = v4()
+    const data = {
+      name: 'NewCandidate',
+      email: String(Math.floor(Math.random() * 1000 + 1)) + 'Newmail@sth.com',
+      mobile: '1234562345',
+      position: Position.STORES,
+      employmentType: EmploymentType.PARTTIME,
+      status: Status.PENDING,
+      degree: 'Fine'
+    }
+    await expect(async () => await updateCandidateAction(id, data, em))
+      .rejects.toThrow('Candidate not found')
+  })
+})
+
+describe('CandidateActions : deleteCandidateAction', () => {
+  test('Can delete a candidate with valid data given', async () => {
+    expect.assertions(1)
+
+    const cand = await createBasicCandidate()
+
+    const result = await deleteCandidateAction(cand.id, em)
+
+    expect(result).toBe(true)
+  })
+  test('Cannot delete a candidate with invalid-id given', async () => {
+    expect.assertions(1)
+
+    const id = v4()
+    await expect(async () => await deleteCandidateAction(id, em))
+      .rejects.toThrow('Candidate not found')
+  })
+})

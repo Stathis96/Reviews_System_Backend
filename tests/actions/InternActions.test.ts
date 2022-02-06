@@ -214,3 +214,78 @@ describe('InternActions : updateInternAction', () => {
       .rejects.toThrow('Intern not found')
   })
 })
+
+describe('InternActions : updateInternActionStatus', () => {
+  test('Can update intern with valid data for status only', async () => {
+    expect.assertions(1)
+
+    const result = await createBasicIntern()
+    const id = result.id
+
+    await updateInternActionOnlyStatus(id, InternStatus.ACTIVE, em)
+    expect(result.internStatus).toBe('active')
+  })
+})
+
+describe('InternActions : deleteInternAction', () => {
+  test('Can delete an intern with valid data given', async () => {
+    expect.assertions(1)
+
+    const inter = await createBasicIntern()
+
+    const result = await deleteInternAction(inter.id, em)
+
+    expect(result).toBe(true)
+  })
+  test('Cannot delete a candidate with invalid-id given', async () => {
+    expect.assertions(1)
+
+    const id = v4()
+    await expect(async () => await deleteInternAction(id, em))
+      .rejects.toThrow('Intern not found')
+  })
+})
+
+describe('InternActions : findPercentageOfSuccessfull', () => {
+  test('Can find correct percentage of interns', async () => {
+    expect.assertions(1)
+
+    const inter1 = await createBasicIntern()
+    inter1.internStatus = InternStatus.EMPLOYED
+    const inter2 = await createBasicIntern()
+    inter2.internStatus = InternStatus.EMPLOYED
+
+    const inter3 = await createBasicIntern()
+    inter3.internStatus = InternStatus.DISMISSED
+
+    const stats: Stats[] = [
+      { value: 2, name: InternStatus.EMPLOYED },
+      { value: 1, name: InternStatus.DISMISSED }
+    ]
+    const result = await findPercentageOfSuccessfulInterns(em)
+    expect(result).toStrictEqual(stats)
+  })
+})
+
+describe('InternActions : findPercentageOfSuccessfullPerPeriod', () => {
+  test('Can find correct percentage of interns per period', async () => {
+    expect.assertions(1)
+
+    const inter1 = await createBasicIntern()
+    inter1.internStatus = InternStatus.EMPLOYED
+    const inter2 = await createBasicIntern()
+    inter2.internStatus = InternStatus.EMPLOYED
+    const inter4 = await createBasicIntern()
+    inter4.internStatus = InternStatus.EMPLOYED
+
+    const inter3 = await createBasicIntern()
+    inter3.internStatus = InternStatus.DISMISSED
+
+    const stats: Stats[] = [
+      { value: 3, name: InternStatus.EMPLOYED },
+      { value: 1, name: InternStatus.DISMISSED }
+    ]
+    const result = await findPercentageOfSuccessfulInternsPerPeriod(120, em)
+    expect(result).toStrictEqual(stats)
+  })
+})

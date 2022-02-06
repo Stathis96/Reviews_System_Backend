@@ -234,3 +234,174 @@ describe('InteviewActions : createInterviewAction', () => {
   })
 })
 
+describe('InteviewActions : updateInterviewAction', () => {
+  test('Can update interview with valid data', async () => {
+    expect.assertions(5)
+    const candidate = await createBasicCandidate()
+
+    const result = await createBasicInterview()
+    const id = result.id
+    const data = {
+      candidateId: candidate.id,
+      startTime: new Date('2021-05-05 10:00:00'),
+      endTime: new Date('2021-05-05 10:20:00'),
+      experience: 2,
+      degree: 3,
+      grading: 4,
+      comments: 'A fine lad',
+      status: Status.PENDING
+    }
+
+    await updateInterviewAction(id, data, result.interviewer, em)
+    expect(result.candidate.id).toBe(data.candidateId)
+    expect(result.experience).toBe(data.experience)
+    expect(result.comments).toBe(data.comments)
+    expect(result.status).toBe(data.status)
+    expect(result.endTime).toBe(data.endTime)
+  })
+  test('Cannot update an interview with invalid-id', async () => {
+    expect.assertions(1)
+    const candidate = await createBasicCandidate()
+
+    const result = await createBasicInterview()
+    const id = v4()
+    const data = {
+      candidateId: candidate.id,
+      startTime: new Date('2021-05-05 10:00:00'),
+      endTime: new Date('2021-05-05 10:20:00'),
+      experience: 2,
+      degree: 3,
+      grading: 4,
+      comments: 'A fine lad',
+      status: Status.PENDING
+    }
+    await expect(async () => await updateInterviewAction(id, data, result.interviewer, em))
+      .rejects.toThrow('Interview not found')
+  })
+  test('Cannot update an interview if logged in user is not the supervisor', async () => {
+    expect.assertions(1)
+    const candidate = await createBasicCandidate()
+
+    const result = await createBasicInterview()
+    const id = result.id
+    const data = {
+      candidateId: candidate.id,
+      startTime: new Date('2021-05-05 10:00:00'),
+      endTime: new Date('2021-05-05 10:20:00'),
+      experience: 2,
+      degree: 3,
+      grading: 4,
+      comments: 'A fine lad',
+      status: Status.PENDING
+    }
+    const differentUser = await createBasicUser()
+    await expect(async () => await updateInterviewAction(id, data, differentUser, em))
+      .rejects.toThrow('Action Failed! Logged in user must be also the owner to update an interview')
+  })
+  test('Cannot update an interview if invalid data is given', async () => {
+    expect.assertions(1)
+    const candidate = await createBasicCandidate()
+
+    const result = await createBasicInterview()
+    const id = result.id
+    const data = {
+      candidateId: candidate.id,
+      startTime: new Date('2021-05-05 10:00:00'),
+      endTime: new Date('2021-05-05 10:20:00'),
+      experience: 12,
+      degree: 13,
+      grading: 41,
+      comments: 'A fine lad',
+      status: Status.PENDING
+    }
+    await expect(async () => await updateInterviewAction(id, data, result.interviewer, em))
+      .rejects.toThrow('Action Failed! Input range between 1-5 for Intern`s experience & degree, 1-10 for Intern`s experience')
+  })
+})
+
+describe('InteviewActions : updateInterviewOnlyStatusAction', () => {
+  test('can update interview`s status with valid data', async () => {
+    expect.assertions(2)
+    const result = await createBasicInterview()
+    const id = result.id
+
+    const check = await updateInterviewActionOnlyStatus(id, Status.ACCEPTED, em)
+
+    expect(check.status).toBe(result.status)
+    expect(check.status).toBe('accepted')
+  })
+})
+
+describe('InteviewActions : deleteInterviewAction', () => {
+  test('Can delete a list with valid data given', async () => {
+    expect.assertions(1)
+
+    const interv = await createBasicInterview()
+
+    const result = await deleteInterviewAction(interv.id, interv.interviewer, em)
+
+    expect(result).toBe(true)
+  })
+  test('Cannot delete an interview with invalid-id given', async () => {
+    expect.assertions(1)
+
+    const interv = await createBasicInterview()
+    const id = v4()
+    await expect(async () => await deleteInterviewAction(id, interv.interviewer, em))
+      .rejects.toThrow('Interview not found')
+  })
+  test('Cannot delete an interview if logged in user is not the supervisor of the interview', async () => {
+    expect.assertions(1)
+
+    const interv = await createBasicInterview()
+    const id = interv.id
+
+    const differentUser = await createBasicUser()
+    await expect(async () => await deleteInterviewAction(id, differentUser, em))
+      .rejects.toThrow('Action Failed! Logged in user must be also the owner to delete an interview')
+  })
+})
+
+describe('InterviewActions : findPercentageOfSuccessfull', () => {
+  test('Can find correct percentage of interviews', async () => {
+    expect.assertions(1)
+
+    const inter1 = await createBasicInterview()
+    inter1.status = Status.ACCEPTED
+    const inter2 = await createBasicInterview()
+    inter2.status = Status.ACCEPTED
+
+    const inter3 = await createBasicInterview()
+    inter3.status = Status.REJECTED
+
+    const stats: StatusStats[] = [
+      { value: 2, name: Status.ACCEPTED },
+      { value: 1, name: Status.REJECTED }
+    ]
+    const result = await findPercentageOfSuccessfulInterviews(em)
+    expect(result).toStrictEqual(stats)
+  })
+})
+
+describe('InterviewActions : findPercentageOfSuccessfullPerPeriod', () => {
+  test('Can find correct percentage of interviews per period', async () => {
+    expect.assertions(1)
+
+    const inter1 = await createBasicInterview()
+    inter1.status = Status.ACCEPTED
+    const inter2 = await createBasicInterview()
+    inter2.status = Status.ACCEPTED
+    const inter4 = await createBasicInterview()
+    inter4.status = Status.ACCEPTED
+
+    const inter3 = await createBasicInterview()
+    inter3.status = Status.REJECTED
+
+    const stats: StatusStats[] = [
+      { value: 3, name: Status.ACCEPTED },
+      { value: 1, name: Status.REJECTED }
+    ]
+    const result = await findPercentageOfSuccessfulInterviewsPerPeriod(120, em)
+    expect(result).toStrictEqual(stats)
+  })
+})

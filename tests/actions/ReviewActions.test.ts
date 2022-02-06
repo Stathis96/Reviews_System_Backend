@@ -176,3 +176,70 @@ describe('ReviewActions : createReviewAction', () => {
     expect(result.cooperation).toBe(data.cooperation)
   })
 })
+
+describe('ReviewActions : updateReviewAction', () => {
+  test('Can update review with valid data', async () => {
+    expect.assertions(4)
+    const user = await createBasicUser()
+    const intern = await createBasicIntern()
+
+    const result = await createBasicReview()
+    const id = result.id
+
+    const data = {
+      internId: intern.id,
+      supervisorId: user.id,
+      initiative: 3,
+      cooperation: 2,
+      performance: 2,
+      consistency: 3,
+      total: 4,
+      createdAt: new Date()
+    }
+
+    await updateReviewAction(id, data, em)
+    expect(result.initiative).toBe(data.initiative)
+    expect(result.total).toBe(data.total)
+    expect(result.intern.id).toBe(data.internId)
+    expect(result.supervisor.id).toBe(data.supervisorId)
+  })
+  test('Cannot update an intern with invalid-id', async () => {
+    expect.assertions(1)
+    const user = await createBasicUser()
+    const intern = await createBasicIntern()
+
+    const id = v4()
+
+    const data = {
+      internId: intern.id,
+      supervisorId: user.id,
+      initiative: 3,
+      cooperation: 2,
+      performance: 2,
+      consistency: 3,
+      total: 4,
+      createdAt: new Date()
+    }
+    await expect(async () => await updateReviewAction(id, data, em))
+      .rejects.toThrow('Review not found')
+  })
+})
+
+describe('ReviewActions : deleteReviewAction', () => {
+  test('Can delete a review with valid data given', async () => {
+    expect.assertions(1)
+
+    const rev = await createBasicReview()
+
+    const result = await deleteReviewAction(rev.id, em)
+
+    expect(result).toBe(true)
+  })
+  test('Cannot delete a candidate with invalid-id given', async () => {
+    expect.assertions(1)
+
+    const id = v4()
+    await expect(async () => await deleteReviewAction(id, em))
+      .rejects.toThrow('Review not found')
+  })
+})
